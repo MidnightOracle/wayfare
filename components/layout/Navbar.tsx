@@ -3,26 +3,41 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Search, Menu, X, ChevronDown } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 const navLinks = [
   {
     label: "Luggage",
-    href: "/collections/luggage",
-    sub: ["Cabin", "Check-in", "Sets"],
+    href: "/collections?category=suitcases",
+    sub: [
+      { label: "Cabin", href: "/collections?category=suitcases" },
+      { label: "Check-in", href: "/collections?category=suitcases" },
+    ],
   },
   {
     label: "Backpacks",
-    href: "/collections/backpacks",
-    sub: ["Work", "Travel", "Everyday"],
+    href: "/collections?category=backpacks",
+    sub: [
+      { label: "Work", href: "/collections?category=backpacks" },
+      { label: "Travel", href: "/collections?category=backpacks" },
+    ],
   },
-  { label: "Bags", href: "/collections/bags", sub: ["Duffel", "Totes"] },
-  { label: "Wallets", href: "/collections/wallets", sub: [] },
+  {
+    label: "Bags",
+    href: "/collections?category=bags",
+    sub: [
+      { label: "Duffel", href: "/collections?category=bags" },
+      { label: "Totes", href: "/collections?category=bags" },
+    ],
+  },
+  { label: "Wallets", href: "/collections?category=wallets", sub: [] },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const { count, openCart } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -73,11 +88,11 @@ export default function Navbar() {
                     <div className="bg-obsidian border border-white/10 rounded-sm p-4 min-w-[140px]">
                       {link.sub.map((s) => (
                         <Link
-                          key={s}
-                          href={`${link.href}/${s.toLowerCase()}`}
+                          key={s.label}
+                          href={s.href}
                           className="block font-mono text-[10px] tracking-widest uppercase text-ivory/60 hover:text-rust py-2 transition-colors"
                         >
-                          {s}
+                          {s.label}
                         </Link>
                       ))}
                     </div>
@@ -92,15 +107,15 @@ export default function Navbar() {
             <button className="hidden lg:flex text-ivory/70 hover:text-ivory transition-colors">
               <Search className="w-4 h-4" />
             </button>
-            <Link
-              href="/cart"
+            <button
+              onClick={openCart}
               className="relative text-ivory/70 hover:text-ivory transition-colors"
             >
               <ShoppingBag className="w-4 h-4" />
               <span className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-rust text-[9px] font-mono flex items-center justify-center text-ivory">
-                0
+                {count}
               </span>
-            </Link>
+            </button>
             <button
               className="lg:hidden text-ivory"
               onClick={() => setMobileOpen(true)}
@@ -140,14 +155,16 @@ export default function Navbar() {
             <Link
               href="/about"
               className="block font-mono text-[11px] tracking-widest uppercase text-sand py-2"
+              onClick={() => setMobileOpen(false)}
             >
               Our Story
             </Link>
             <Link
-              href="/stores"
+              href="/collections"
               className="block font-mono text-[11px] tracking-widest uppercase text-sand py-2"
+              onClick={() => setMobileOpen(false)}
             >
-              Find a Store
+              All Collections
             </Link>
           </div>
         </div>

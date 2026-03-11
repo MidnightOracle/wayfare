@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Heart } from "lucide-react";
+import { ShoppingBag, Heart, Check } from "lucide-react";
 import type { Product } from "@/lib/data";
+import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +15,16 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+  const [added, setAdded] = useState(false);
+  const { addToCart } = useCart();
+
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, 1, selectedColor);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
 
   return (
     <div
@@ -51,7 +62,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Wishlist */}
         <button
-          onClick={() => setWishlisted(!wishlisted)}
+          onClick={(e) => { e.preventDefault(); setWishlisted(!wishlisted); }}
           className="absolute top-3 right-3 w-8 h-8 bg-obsidian/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-rust"
         >
           <Heart
@@ -61,9 +72,21 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Quick add overlay */}
         <div className="product-overlay absolute inset-x-0 bottom-0 opacity-0 transition-opacity duration-300">
-          <button className="w-full bg-obsidian/90 backdrop-blur-sm text-ivory font-mono text-[10px] tracking-widest uppercase py-3 flex items-center justify-center gap-2 hover:bg-rust transition-colors">
-            <ShoppingBag className="w-3.5 h-3.5" />
-            Quick Add
+          <button
+            onClick={handleQuickAdd}
+            className={`w-full backdrop-blur-sm text-ivory font-mono text-[10px] tracking-widest uppercase py-3 flex items-center justify-center gap-2 transition-colors ${
+              added ? "bg-green-700/90" : "bg-obsidian/90 hover:bg-rust"
+            }`}
+          >
+            {added ? (
+              <>
+                <Check className="w-3.5 h-3.5" /> Added!
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5" /> Quick Add
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -75,7 +98,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.colors.map((color, i) => (
             <button
               key={i}
-              onClick={() => setSelectedColor(i)}
+              onClick={(e) => { e.preventDefault(); setSelectedColor(i); }}
               className={`w-3.5 h-3.5 rounded-full transition-all ${
                 selectedColor === i ? "ring-1 ring-offset-1 ring-offset-obsidian ring-ivory scale-110" : ""
               }`}

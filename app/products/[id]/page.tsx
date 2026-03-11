@@ -9,6 +9,9 @@ import { products } from "@/lib/data";
 import { ShoppingBag, Heart, Check, ChevronDown, ArrowLeft } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import { useParams } from "next/navigation";
+import { useCart } from "@/context/CartContext";
+
+const colorNames = ["Obsidian", "Sand", "Slate", "Rust", "Ivory"];
 
 export default function ProductPage() {
   const params = useParams();
@@ -19,10 +22,12 @@ export default function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("features");
+  const { addToCart } = useCart();
 
   const related = products.filter((p) => p.id !== product.id).slice(0, 4);
 
   const handleAddToCart = () => {
+    addToCart(product, quantity, selectedColor);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -133,7 +138,10 @@ export default function ProductPage() {
             {/* Colors */}
             <div className="mb-6">
               <div className="font-mono text-[10px] tracking-widest uppercase text-ivory/50 mb-3">
-                Color — <span className="text-ivory">{["Obsidian", "Sand", "Slate", "Rust"][selectedColor] ?? "Obsidian"}</span>
+                Color —{" "}
+                <span className="text-ivory">
+                  {colorNames[selectedColor] ?? "Obsidian"}
+                </span>
               </div>
               <div className="flex gap-2">
                 {product.colors.map((color, i) => (
